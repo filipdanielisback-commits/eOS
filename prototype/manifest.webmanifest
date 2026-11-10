@@ -1,0 +1,20 @@
+{
+  "id": "./index.html",
+  "name": "eOS Interface Prototype",
+  "short_name": "eOS",
+  "description": "An early interactive prototype of the eOS mobile interface.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#10131c",
+  "theme_color": "#10131c",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
