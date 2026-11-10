@@ -1,0 +1,36 @@
+# Build outputs
+/build/out/
+/out/
+/dist/
+/target/
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Logs and temporary files
+*.log
+.tmp/
+temp/
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# OS metadata
+.DS_Store
+Thumbs.db
