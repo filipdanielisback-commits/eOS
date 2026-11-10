@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#10131c">
+  <title>eOS — Interface Prototype</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #10131c;
+      --panel: rgba(31, 37, 53, .82);
+      --panel-strong: #252c40;
+      --text: #f5f6fb;
+      --muted: #aab2c6;
+      --accent: #a8c7ff;
+      --accent-ink: #15243d;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100svh; color: var(--text);
+      background:
+        radial-gradient(ellipse at 18% 18%, rgba(82, 112, 184, .32), transparent 42%),
+        radial-gradient(ellipse at 85% 78%, rgba(116, 83, 169, .25), transparent 38%),
+        linear-gradient(145deg, #10131c, #171c2b 58%, #111521);
+      overflow-x: hidden;
+    }
+    button { font: inherit; color: inherit; cursor: pointer; }
+    .device { width: min(100%, 440px); min-height: 100svh; margin: 0 auto; padding: max(18px, env(safe-area-inset-top)) 22px max(22px, env(safe-area-inset-bottom)); display: flex; flex-direction: column; }
+    .status { display:flex; justify-content:space-between; align-items:center; font-size:13px; font-weight:650; letter-spacing:.02em; padding: 2px 4px 0; }
+    .status-right { display:flex; gap:8px; align-items:center; color:#e6eafa; }
+    .hero { margin: 42px 4px 30px; }
+    .date { color:var(--muted); font-size:14px; letter-spacing:.03em; }
+    .clock { font-size: clamp(58px, 16vw, 76px); font-weight:300; letter-spacing:-.075em; line-height:1.05; margin-top:5px; }
+    .greeting { color:#dce5fb; font-size:15px; margin-top:8px; }
+    .search { border:1px solid rgba(255,255,255,.13); background:rgba(255,255,255,.075); border-radius:18px; padding:14px 16px; display:flex; gap:11px; align-items:center; color:var(--muted); margin-bottom:26px; }
+    .section-label { color:var(--muted); font-size:12px; letter-spacing:.13em; text-transform:uppercase; margin:0 4px 14px; }
+    .apps { display:grid; grid-template-columns:repeat(4,1fr); gap:22px 10px; }
+    .app { border:0; background:transparent; display:flex; flex-direction:column; align-items:center; gap:8px; min-width:0; }
+    .app-icon { width:58px; height:58px; display:grid; place-items:center; border-radius:19px; font-size:25px; background:linear-gradient(145deg,rgba(255,255,255,.19),rgba(255,255,255,.055)); border:1px solid rgba(255,255,255,.14); box-shadow:0 10px 28px rgba(0,0,0,.16); }
+    .app span:last-child { font-size:12px; color:#e4e8f3; }
+    .dock { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; padding:13px; border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.10); backdrop-filter:blur(22px); border-radius:25px; margin-top:auto; }
+    .dock .app-icon { width:100%; height:58px; border:0; background:rgba(255,255,255,.10); }
+    .gesture { width:108px; height:4px; background:rgba(255,255,255,.72); border-radius:8px; margin:19px auto 0; }
+    .panel { position:fixed; z-index:5; inset:0; padding: max(22px,env(safe-area-inset-top)) 20px max(24px,env(safe-area-inset-bottom)); background:rgba(11,14,23,.88); backdrop-filter:blur(28px); display:none; overflow:auto; }
+    .panel.open { display:block; }
+    .panel-inner { max-width:400px; margin:0 auto; }
+    .panel-head { display:flex; align-items:center; justify-content:space-between; margin:12px 0 26px; }
+    .panel-head h2 { margin:0; font-size:25px; letter-spacing:-.04em; }
+    .close { border:1px solid rgba(255,255,255,.15); background:rgba(255,255,255,.09); border-radius:50%; width:38px; height:38px; font-size:20px; }
+    .tiles { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
+    .tile { border:1px solid rgba(255,255,255,.12); border-radius:22px; padding:18px; background:var(--panel); text-align:left; min-height:104px; }
+    .tile.active { background:var(--accent); color:var(--accent-ink); }
+    .tile-icon { font-size:23px; display:block; margin-bottom:13px; }
+    .tile strong { display:block; font-size:14px; }
+    .tile small { display:block; opacity:.72; margin-top:4px; }
+    .card { border:1px solid rgba(255,255,255,.12); background:var(--panel); border-radius:22px; padding:18px; margin-top:14px; }
+    .card h3 { margin:0 0 8px; font-size:16px; }
+    .card p { margin:0; color:var(--muted); font-size:13px; line-height:1.55; }
+    .setting-row { display:flex; justify-content:space-between; align-items:center; padding:15px 0; border-bottom:1px solid rgba(255,255,255,.09); font-size:14px; }
+    .setting-row:last-child { border:0; }
+    .pill { color:var(--muted); font-size:12px; }
+    .note-input { width:100%; min-height:180px; resize:vertical; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.15); border-radius:16px; padding:14px; color:var(--text); font:inherit; line-height:1.5; }
+    .toast { position:fixed; z-index:9; bottom:28px; left:50%; transform:translate(-50%,20px); opacity:0; transition:.2s; background:#e8efff; color:#1b2940; padding:11px 16px; border-radius:30px; font-size:13px; font-weight:650; pointer-events:none; white-space:nowrap; }
+    .toast.show { opacity:1; transform:translate(-50%,0); }
+    @media (min-height:850px) { .hero { margin-top:58px; } .apps { row-gap:30px; } }
+  </style>
+</head>
+<body>
+  <main class="device" aria-label="eOS home screen prototype">
+    <header class="status">
+      <span id="status-time">9:41</span>
+      <span class="status-right"><span>◔</span><span>▮▮▮</span><span>▰</span><span>100%</span></span>
+    </header>
+    <section class="hero">
+      <div class="date" id="date">MONDAY, NOVEMBER 10</div>
+      <div class="clock" id="clock">9:41</div>
+      <div class="greeting">A calmer space for everything.</div>
+    </section>
+    <div class="search" role="button" tabindex="0" onclick="toast('eSearch is planned for a future prototype')"><span>⌕</span><span>Search apps and more</span></div>
+    <div class="section-label">Your apps</div>
+    <section class="apps" aria-label="Applications">
+      <button class="app" data-panel="phone"><span class="app-icon">☎</span><span>Phone</span></button>
+      <button class="app" data-panel="messages"><span class="app-icon">▤</span><span>eMessages</span></button>
+      <button class="app" data-panel="camera"><span class="app-icon">◎</span><span>Camera</span></button>
+      <button class="app" data-panel="notes"><span class="app-icon">▧</span><span>Notes</span></button>
+      <button class="app" data-panel="settings"><span class="app-icon">⚙</span><span>Settings</span></button>
+      <button class="app" data-panel="store"><span class="app-icon">◈</span><span>eApp Store</span></button>
+      <button class="app" data-panel="devices"><span class="app-icon">⌁</span><span>Devices</span></button>
+      <button class="app" data-panel="assistant"><span class="app-icon">✧</span><span>Assistant</span></button>
+    </section>
+    <nav class="dock" aria-label="Favorite apps">
+      <button class="app" data-panel="phone" aria-label="Phone"><span class="app-icon">☎</span></button>
+      <button class="app" data-panel="messages" aria-label="Messages"><span class="app-icon">▤</span></button>
+      <button class="app" data-panel="camera" aria-label="Camera"><span class="app-icon">◎</span></button>
+      <button class="app" data-panel="settings" aria-label="Settings"><span class="app-icon">⚙</span></button>
+    </nav>
+    <button class="gesture" aria-label="Open control center" id="gesture" style="border:0" onclick="openPanel('control')"></button>
+  </main>
+
+  <section class="panel" id="control" aria-label="Control center">
+    <div class="panel-inner">
+      <div class="panel-head"><h2>Control Center</h2><button class="close" onclick="closePanels()" aria-label="Close">×</button></div>
+      <div class="tiles">
+        <button class="tile active" aria-pressed="true" onclick="toggleTile(this)"><span class="tile-icon">◉</span><strong>Wi-Fi</strong><small>Connected (demo)</small></button>
+        <button class="tile" aria-pressed="false" onclick="toggleTile(this)"><span class="tile-icon">ᛒ</span><strong>Bluetooth</strong><small>Off</small></button>
+        <button class="tile" aria-pressed="false" onclick="toggleTile(this)"><span class="tile-icon">◐</span><strong>Airplane mode</strong><small>Off</small></button>
+        <button class="tile active" aria-pressed="true" onclick="toggleTile(this)"><span class="tile-icon">☼</span><strong>Dark theme</strong><small>On</small></button>
+      </div>
+      <div class="card"><h3>Brightness</h3><input aria-label="Brightness (visual demo only)" type="range" min="10" max="100" value="75" style="width:100%;accent-color:#a8c7ff"></div>
+      <div class="card"><h3>Sound</h3><input aria-label="Volume (visual demo only)" type="range" min="0" max="100" value="55" style="width:100%;accent-color:#a8c7ff"></div>
+      <div class="card"><p>These switches are interface demonstrations only. They do not change your phone's real Wi-Fi, Bluetooth or system settings.</p></div>
+    </div>
+  </section>
+
+  <section class="panel" id="settings" aria-label="Settings">
+    <div class="panel-inner">
+      <div class="panel-head"><h2>Settings</h2><button class="close" onclick="closePanels()" aria-label="Close">×</button></div>
+      <div class="card"><h3>eOS</h3><p>Interface prototype · early development</p></div>
+      <div class="card">
+        <div class="setting-row"><span>Network & internet</span><span class="pill">›</span></div>
+        <div class="setting-row"><span>Connected devices</span><span class="pill">›</span></div>
+        <div class="setting-row"><span>Display & appearance</span><span class="pill">›</span></div>
+        <div class="setting-row"><span>Sound & vibration</span><span class="pill">›</span></div>
+        <div class="setting-row"><span>Privacy & security</span><span class="pill">›</span></div>
+        <div class="setting-row"><span>About eOS</span><span class="pill">Prototype 0.1</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="notes" aria-label="Notes">
+    <div class="panel-inner">
+      <div class="panel-head"><h2>Notes</h2><button class="close" onclick="closePanels()" aria-label="Close">×</button></div>
+      <div class="card"><h3>Quick note</h3><p>This is a local demo field. It does not save or sync notes yet.</p><textarea class="note-input" placeholder="Write something..."></textarea></div>
+    </div>
+  </section>
+
+  <section class="panel" id="generic" aria-label="App information">
+    <div class="panel-inner">
+      <div class="panel-head"><h2 id="generic-title">App</h2><button class="close" onclick="closePanels()" aria-label="Close">×</button></div>
+      <div class="card"><h3>Coming together</h3><p id="generic-copy">This eOS app is planned. Its interface and real functionality will be developed in future milestones.</p></div>
+    </div>
+  </section>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const panels = [...document.querySelectorAll('.panel')];
+    function openPanel(id) {
+      panels.forEach(p => p.classList.remove('open'));
+      const target = document.getElementById(id);
+      if (target) target.classList.add('open');
+    }
+    function closePanels() { panels.forEach(p => p.classList.remove('open')); }
+    function toggleTile(button) {
+      const active = button.classList.toggle('active');
+      button.setAttribute('aria-pressed', String(active));
+      button.querySelector('small').textContent = active ? 'On (demo)' : 'Off';
+    }
+    let toastTimer;
+    function toast(message) {
+      const el = document.getElementById('toast');
+      el.textContent = message;
+      el.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+    }
+    const labels = {
+      phone: ['Phone', 'Calling is not connected in this prototype. Real telephony needs device-specific modem and system integration.'],
+      messages: ['eMessages', 'Messaging is planned. A future version will need secure message storage and notification services.'],
+      camera: ['Camera', 'Camera preview and capture need camera hardware access and device drivers.'],
+      store: ['eApp Store', 'The app catalogue, package verification and update system are planned components.'],
+      devices: ['Control Devices', 'Device discovery and control will be added after the core service layer exists.'],
+      assistant: ['Setup Assistant', 'The setup flow will guide users through language, accessibility, privacy and device preferences.']
+    };
+    document.querySelectorAll('[data-panel]').forEach(button => {
+      button.addEventListener('click', () => {
+        const id = button.dataset.panel;
+        if (id === 'settings' || id === 'notes') return openPanel(id);
+        if (labels[id]) {
+          document.getElementById('generic-title').textContent = labels[id][0];
+          document.getElementById('generic-copy').textContent = labels[id][1];
+          openPanel('generic');
+        }
+      });
+    });
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('clock').textContent = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', hour12:false});
+      document.getElementById('status-time').textContent = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', hour12:false});
+      document.getElementById('date').textContent = now.toLocaleDateString([], {weekday:'long', month:'long', day:'numeric'}).toUpperCase();
+    }
+    updateClock();
+    setInterval(updateClock, 30000);
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closePanels(); });
+  </script>
+</body>
+</html>
